@@ -1,25 +1,100 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import DrinkList from './components/DrinkList';
+import CocktailListHeading from './components/CocktailListHeading';
+import SearchBox from './components/SearchBox';
+import AddFavourites from './components/AddFavourites';
+import RemoveFavourites from './components/RemoveFavourites';
+import Spinner from 'react-bootstrap/Spinner';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+	const [drinks, setDrinks] = useState([]);
+	const [favourites, setFavourites] = useState([]);
+	const [searchValue, setSearchValue] = useState('');
+	const [loading, setLoading] = useState(false);
+
+	const getDrinksRequest = async (searchValue) => {
+    setLoading(true)
+		const url = `https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${searchValue}`;
+    let response,responseJson;
+    try {
+		 response = await fetch(url);
+		 responseJson = await response.json();
+		console.log(responseJson,"responseJson");
+    if (responseJson.drinks) {
+      setDrinks(responseJson.drinks);
+      setLoading(false)
+    }
+  } catch (error) {
+    console.log('There was an error', error);
+    setLoading(false)
+  }
+  
+	};
+
+	useEffect(() => {
+		getDrinksRequest(searchValue);
+	}, [searchValue]);
+
+	useEffect(() => {
+		const movieFavourites = JSON.parse(
+			localStorage.getItem('cocktail-app-favourites')
+		);
+
+		if (movieFavourites) {
+			setFavourites(movieFavourites);
+		}
+	}, []);
+
+	const saveToLocalStorage = (items) => {
+		localStorage.setItem('cocktail-app-favourites', JSON.stringify(items));
+	};
+
+	const addFavouriteMovie = (movie) => {
+		const newFavouriteList = [...favourites, movie];
+		setFavourites(newFavouriteList);
+		saveToLocalStorage(newFavouriteList);
+	};
+
+	const removeFavouriteMovie = (movie) => {
+		const newFavouriteList = favourites.filter(
+			(favourite) => favourite.idDrink !== movie.idDrink
+		);
+
+		setFavourites(newFavouriteList);
+		saveToLocalStorage(newFavouriteList);
+	};
+
+	return (
+		<div className='container-fluid movie-app'>
+			<div className='row d-flex align-items-center mt-4 mb-4'>
+				<CocktailListHeading heading='Cocktails' />
+				<SearchBox searchValue={searchValue} setSearchValue={setSearchValue} />
+			</div>
+      {loading?<Spinner animation="border" />:""}
+     
+      <DrinkList
+					drinks={drinks}
+					handleFavouritesClick={addFavouriteMovie}
+					favouriteComponent={AddFavourites}
+				/>
+      
+			
+			<div className='row d-flex align-items-center mt-4 mb-4'>
+				<CocktailListHeading heading='Favourites' />
+			</div>
+		
+				<DrinkList
+					drinks={favourites}
+					handleFavouritesClick={removeFavouriteMovie}
+					favouriteComponent={RemoveFavourites}
+				/>
+			
+      
+
+		</div>
+	);
+};
 
 export default App;
