@@ -51,15 +51,15 @@ const App = () => {
 		localStorage.setItem('cocktail-app-favourites', JSON.stringify(items));
 	};
 
-	const addFavouriteMovie = (movie) => {
-		const newFavouriteList = [...favourites, movie];
+	const addFavouriteDrink = (drink) => {
+		const newFavouriteList = [...favourites, drink];
 		setFavourites(newFavouriteList);
 		saveToLocalStorage(newFavouriteList);
 	};
 
-	const removeFavouriteMovie = (movie) => {
+	const removeFavouriteDrink = (drink) => {
 		const newFavouriteList = favourites.filter(
-			(favourite) => favourite.idDrink !== movie.idDrink
+			(favourite) => favourite.idDrink !== drink.idDrink
 		);
 
 		setFavourites(newFavouriteList);
@@ -67,7 +67,7 @@ const App = () => {
 	};
 
 	return (
-		<div className='container-fluid movie-app'>
+		<div className='container-fluid cocktail-app'>
 			<div className='row d-flex align-items-center mt-4 mb-4'>
 				<CocktailListHeading heading='Cocktails' />
 				<SearchBox searchValue={searchValue} setSearchValue={setSearchValue} />
@@ -76,7 +76,7 @@ const App = () => {
      
       <DrinkList
 					drinks={drinks}
-					handleFavouritesClick={addFavouriteMovie}
+					handleFavouritesClick={addFavouriteDrink}
 					favouriteComponent={AddFavourites}
 				/>
       
@@ -87,7 +87,7 @@ const App = () => {
 		
 				<DrinkList
 					drinks={favourites}
-					handleFavouritesClick={removeFavouriteMovie}
+					handleFavouritesClick={removeFavouriteDrink}
 					favouriteComponent={RemoveFavourites}
 				/>
 			
